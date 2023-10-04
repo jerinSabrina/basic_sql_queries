@@ -1,0 +1,296 @@
+create table students (
+student_id int AUTO_INCREMENT,
+student_fname varchar(30) NOT NULL,
+student_lname varchar(30) NOT NULL,
+student_mname varchar(30),
+student_email varchar(30) NOT NULL,
+student_phone varchar(15) NOT NULL,
+student_alternate_phone varchar(15),
+enrollment_date TIMESTAMP NOT NULL,
+selected_course int NOT NULL DEFAULT 1,
+years_of_exp int NOT NULL,
+student_company varchar(30),
+batch_date varchar(30),
+source_of_joining varchar(30) NOT NULL,
+location varchar(30) NOT NULL,
+primary key (student_id),
+unique key (student_email)
+);
+
+create table courses(
+course_id int NOT NULL,
+course_name varchar(30) NOT NULL,
+course_duration_months int NOT NULL,
+course_fee int NOT NULL,
+PRIMARY key (course_id)
+);
+Session 11  (interview)
+=========================================================================
+JOINS
+
+2 tables  == students , courses
+
+Q1. In which courses tamim get enrolled?
+
+Students
+========
+select student_fname , selected_course from students;
+tamim , 3
+
+courses
+=======
+3, devops
+
+select course_name from courses where course_id = 
+(select selected_course from students where student_fname = 'tamim');
+
+When we need multiple information , cant write like this..
+so WILL JOIN THE TABLE.
+
+in students table selected_course,
+in courses table course_id.
+
+select student_fname,student_lname,course_name from students join courses 
+on students.selected_course = courses.course_id;
+
+IT IS INNER JOIN (by default) = ONly the matching records are considered.
+non-matching records are discarded.
+
+LEFT OUTER JOIN
+==================
+all the matching records from left and right table are considered 
++ all the non-matching records 
+from left tables in the left table which doesn't have the match in the right .
+
+select student_fname,student_lname,course_name from students left join courses 
+on students.selected_course = courses.course_id;
+
+Right OUTER JOIN
+==================
+all the matching records from left and right table are considered 
++ all the non-matching records from right tables in the left table which doesn't have the match in the right .
+
+select student_fname,student_lname,course_name from students right join courses 
+on students.selected_course = courses.course_id;
+
+FULL OUTER JOIN
+===================
+
+all the matching records from left and right table are considered 
++ all the non-matching records  from right tables 
++ all the non-matching records  from left tables 
+
+select student_fname,student_lname,course_name from students left join courses 
+on students.selected_course = courses.course_id 
+union
+select student_fname,student_lname,course_name from students right join courses 
+on students.selected_course = courses.course_id;
+
+
+session-12  (interview)
+====================================================================================
+where and having clause in SQL
+
+problem statement
+--------------------
+Q1. How many people have joined through different sources?
+select source_of_joining, count(*) from students group by source_of_joining;
++-------------------+----------+
+| source_of_joining | count(*) |
++-------------------+----------+
+| indeed            |        1 |
+| Linkedin          |        3 |
+| stepstone         |        2 |
+| Xing              |        2 |
++-------------------+----------+
+
+Q2. lead sources  through with more than 1 person has registered?
+select source_of_joining, count(*) from students group by source_of_joining where count(*)>1;
+wil not work.
+--where clause is used to filter the individual records before aggregation (group by/count action)..
+
+select source_of_joining, count(*) from students group by source_of_joining having count(*)>1;
+--Having is used to ter individual records after aggregation.
++-------------------+----------+
+| source_of_joining | count(*) |
++-------------------+----------+
+| Linkedin          |        3 |
+| stepstone         |        2 |
+| Xing              |        2 |
++-------------------+----------+
+
+Q3. How many people who registered through Linkedin?
+
+select source_of_joining ,count(*) as total 
+from students 
+group by source_of_joining 
+having source_of_joining = 'Linkedin';
+
+//select source_of_joining ,count(*) as total from students where source_of_joining = 'Linkedin';
+//select source_of_joining ,count(*) as total from students where source_of_joining = 'Linkedin' group by source_of_joining;
+
+Q4. to know location from which more than 1 student has joined & the students expreiences is more than 5 years?
+
+select location,count(*) as total from students 
+where years_of_exp > 5 group by location 
+having total >1;
+ 
+session -13  (interview)
+===============================================================================
+OVER PARTITION BY
+----------------------
+CREATE TABLE employee(
+    firstname varchar (20),
+    lastname varchar(20),
+    age int ,
+    salary int,
+    location varchar(20)
+);
+
+INSERT INTO employee VALUES ('Abeed','Hasan', 25, 10000,'Chittagong');
+INSERT INTO employee VALUES ('Moieen','Hasan', 30, 50000,'Dhaka');
+INSERT INTO employee VALUES ('Rakib','Khan', 27, 40000,'Rajshahi');
+INSERT INTO employee VALUES ('Sakib','Islam', 28, 30000,'Comilla');
+INSERT INTO employee VALUES ('Apurba','Rashid', 23, 50000,'Chittagong');
+INSERT INTO employee VALUES ('Moieen','Hossain', 20, 30000,'Dhaka');
+INSERT INTO employee VALUES ('Sayeed','Khan', 25, 20000,'Dhaka');
+INSERT INTO employee VALUES ('Asif','Islam', 28, 30000,'Comilla');
+
+Q1. how many people are form each location and avg salary at each location.
+select location,count(location) as total, avg(salary) as average from employee group by location;
++------------+-------+------------+
+| location   | total | average    |
++------------+-------+------------+
+| Chittagong |     3 | 10000.0000 |
+| Comilla    |     1 | 30000.0000 |
+| Dhaka      |     1 | 50000.0000 |
+| Rajshahi   |     4 | 40000.0000 |
++------------+-------+------------+
+
+Q2. find out this information where first two columns are not Aggregated and others are Aggregated.
+
++-----------+----------+------+--------+------------+
+| Abeed     | Hasan    |   Chittagong |               3 | 10000.0000 |
+| Sakib     | Islam    |   Comilla    |               1 | 30000.0000 |
+| Rakib     | Khan     |   Rajshahi   |               4 | 40000.0000
+| Moieen    | Hasan    |   Dhaka      |               1 | 50000.0000 |
+| Rakib     | Khan     |   Rajshahi   |               4 | 40000.0000 |
+| Abeed     | Hasan    |   Chittagong |               3 | 10000.0000|
+| Rakib     | Khan     |   Rajshahi   |               4 | 40000.0000 |
+| Rakib     | Khan     |   Rajshahi   |               4 | 40000.0000 |
+
+For  not Aggregated function: 
+select firstname, lastname,location, total, average from employee
+for Aggregated function:
+select location,count(location) as total, avg(salary) as average from employee group by location;
+
+Not join this two.
+select firstname, lastname,employee.location, total, average from employee JOIN (select location,
+count(location) as total, avg(salary) as average from employee group by location) temptable on
+employee.location = temptable.location;
+
+
+How to do it easily?
+select firstname, lastname , location, count(location) OVER (PARTITION BY location),
+avg(salary) OVER ( PARTITION BY location)
+from employee;
+
+Session 14 (interview)
+======================================================================================
+ROW number
+-----------------
+when we use row_number()
+
+-we should be using the order by clause
+-we can also use the partition by --optional
+- the row_number starts from 1 for every partition
+ 
+SELECT firstname,lastname, salary, row_number() over (order by salary desc) as rownumber from employee;
+firstname	lastname	salary	rownumber
+Moieen	Hasan	50000	1
+Apurba	Rashid	50000	2
+Rakib	Khan	40000	3
+Sakib	Islam	30000	4
+Moieen	Hossain	30000	5
+Asif	Islam	30000	6
+Sayeed	Khan	20000	7
+Abeed	Hasan	10000	8
+
+Q1. Find out 2nd highest salary?
+select * from ( SELECT firstname,lastname, salary, row_number() over (order by salary desc) as rownum
+from employee) temptable where rownum = 2;
+    Rakib	    Khan	    40000	2
+
+Q2. To assign row number for partitions based on each location.
+SELECT firstname,lastname, salary, location,
+row_number() over (PARTITION by location order by salary desc) from employee;
+
+Q3. Find out highest salary at each location.
+select * from (SELECT firstname,lastname, salary,location,
+row_number() over (partition by location order by salary desc) as rownum from employee) 
+temptable where rownum = 1;
+
+
+Session- 15 (interview)
+=====================================================================================
+
+RANK & DENSE RANK
+====================
+SELECT firstname,lastname, salary, 
+row_number() over (order by salary desc) as rownumber from employee;
+firstname	lastname	salary	rownumber
+Moieen	Hasan	50000	1
+Apurba	Rashid	50000	2
+Rakib	Khan	40000	3
+Sakib	Islam	30000	4
+Moieen	Hossain	30000	5
+Asif	Islam	30000	6
+Sayeed	Khan	20000	7
+Abeed	Hasan	10000	8
+
+Here 30000 comes 3 times .. it is given rownumber randomly.. so rownumber wil be helpful when there is no duplicate value.
+
+To handle this type of duplicate value , we can use RANK & DENSE RANK
+
+SELECT firstname,lastname, salary, 
+RANK() over (order by salary desc) as rownumber from employee;
+Moieen	Hasan	50000	1
+Apurba	Rashid	50000	1
+Rakib	Khan	40000	3
+Sakib	Islam	30000	4
+Moieen	Hossain	30000	4
+Asif	Islam	30000	4
+Sayeed	Khan	20000	7
+Abeed	Hasan	10000	8
+
+SELECT firstname,lastname, salary, 
+DENSE_RANK() over (order by salary desc) as rownumber from employee;
+
+Moieen	Hasan	50000	1
+Apurba	Rashid	50000	1
+Rakib	Khan	40000	2
+Sakib	Islam	30000	3
+Moieen	Hossain	30000	3
+Asif	Islam	30000	3
+Sayeed	Khan	20000	4
+Abeed	Hasan	10000	5
+
+if there are no duplicate then row_number , rank, dense rank lead to similar results.
+Rank = for duplicate same rank is assigned and for the next rank it skips the ranks.
+dense_rank = it doesnot skip  any ranks in between.
+
+scenario = there is a competition. find out 3 top positions.
+in this scenario dense_rank will be appropriate.
+
+score -- dense rank -- rank --- row number
+100         1           1           1
+100         1           1           2
+98          2           3           3
+97          3           4           4
+97          3           4           5
+95          4           5           5
+
+
+
+
+

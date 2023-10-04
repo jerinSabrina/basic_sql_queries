@@ -1,0 +1,400 @@
+mysql-ctl cli
+
+SQL command : 
+
+1. CREATE DATABASE company;
+	show databases;
+	drop database company;
+2. USE company;
+	SELECT database();
+
+3. CREATE TABLE employee
+(
+name varchar(50),
+age INT,
+salary INT
+);
+
+	show tables;
+	describe employee; ===> desc employee;
+	drop table employee;
+
+SESsion 2 
+==================================================================
+4. employee table
+you prefer to hire from bochum
+
+CRUD OPERATION
+=====================
+CREATE TABLE employee(
+firstname varchar(20),
+middlename varchar(20),
+lastname varchar(20),
+age INT,
+salary INT,
+location varchar(20)
+);
+
+5. single value
+================
+INSERT INTO employee(firstname, lastname, age, salary, location ) 
+VALUES ( 'kamal', 'Hasan' , 48, 55000, 'Bochum');
+
+6. Multiple value
+==================
+INSERT INTO employee(firstname,middlename, lastname, age, salary, location ) 
+VALUES ( 'Akibul','Hasan', 'Akib', 48, 55000, 'Bochum'), ('Rakibul', 'Rahman' , 'rakib', 30, 25000, 'BD' );
+
+7. NULL
+==========
+First coloumn can't be null .likewise many columns can't be NULL. So,  we should put some restrictions.
+
+CREATE TABLE employee( 
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) NOT NULL
+);
+
+8. Default Values
+=================
+CREATE TABLE employee( 
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) DEFAULT 'BD'
+);
+
+9. NOT NULL AND DEFAULT VALUES
+================================
+CREATE TABLE employee( 
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) NOT NULL DEFAULT 'BD'
+);
+
+Session 3
+==========================================================================
+
+primary key : uniquely identify each record in the table
+===========
+NULL value and repeated values are not allowed.
+
+CREATE TABLE employee( 
+id int PRIMARY KEY,
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) NOT NULL DEFAULT 'BD'
+);
+
+CREATE TABLE employee( 
+id int,
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) NOT NULL DEFAULT 'BD'
+PRIMARY KEY (id)
+);
+
+AUTOincrement:
+CREATE TABLE employee( 
+id int AUTO_INCREMENT,
+firstname varchar(20) NOT NULL, 
+middlename varchar(20), 
+lastname varchar(20) NOT NULL, 
+age INT NOT NULL,
+salary INT NOT NULL, 
+location varchar(20) NOT NULL DEFAULT 'BD',
+PRIMARY KEY (id)
+);
+
+
+INSERT INTO employee(firstname, lastname, age, salary ) 
+VALUES ( 'Jamal', 'Hasan' ,31, 5500);
+
+
+Unique KEY
+===========
+* You can have only one primary key and Primary key can not hold any NULL
+* We should use primary key when we have to uniquely identify each rcord.
+* Unique key can hold NULL (example: MySQL = hold any number of NULL , other DB's = hold only one NULL)
+* Purpose of unique key is to make sure the values do not duplicate) EX : email
+* Can have one primary key but multiple unique keys in a table
+*  
+
+CREATE TABLE employee(
+id int,
+name varchar(20) NOT NULL,
+email varchar(20) NOT NULL,
+UNIQUE KEY (id,name)
+);
+
+Session 4 :
+=============================================================================
+SELECT :  Selecting all columns.
+select * from employee;
+ I) select firstname , lastname from employee;
+
+
+ select by applying a where clause (filter condition)
+
+II) select * from from employee where age>30;
+select * from employee where firstname = 'jamal'
+ It is case insensitive
+III)select * from employee where binary firstname = 'Jamal';
+binary -- It is case sensitive and  should be exact  Jamal not jamal.
+
+Alias --- if we want to change the columns name as 
+
+select firstname , lastname from employee;
+select firstname as name , lastname as surname from employee;
+
+UPDATE
+---------- : 
+1)change name where firstname is  kamal;
+
+update employee set lastname = 'islam' where firstname = 'Jamal';
+update employee set location = 'CTG' where firstname = 'kamal';
+update employee set location = 'CTG'; 
+In here it wil update total table.
+
+2) increase salary by 5000 of all; 
+
+update employee set salary  = salary+5000;
+update employee set location= 'Dhaka' where firstname = 'kamal' and lastname = 'Hasan';
+
+Delete : 
+--------
+delete from employee where id = 3;
+
+delete from employee;
+
+
+Alter command:
+============
+---alter the structure of the table.
+when we want to change structure not the data. (ex: firstname varchar(50) not 20 )
+
+alter table employee modify column firstname varchar(30);
+
+alter table employee add column jobtitle varchar(50);
+
+alter table employee drop column jobtitle;
+
+alter table employee drop primary key;
+alter table employee add primary key(id);
+
+DDL vs DML
+============
+
+DDL= data definition Language - deals with table structure
+create , alter, Drop, truncate == DDL commands
+
+DML = Data Manipulation Language - here we deal with the data directly.
+insert, update, delete  ===DML commands
+
+
+truncate -- removes all records
+=========
+truncate table employee; - internally drops the table and recreate it.
+delete table employee;  == it will delete data one by one; take time.
+
+Session 5
+==================================================================================
+
+Foreign key constraint is used to prevent actions that would destroy links between two tables.
+
+Foreign key - isa field in one table thats refers to the primary key in another table.
+
+Students table
+===============
+
+create table students (
+student_id int AUTO_INCREMENT,
+student_fname varchar(30) NOT NULL,
+student_lname varchar(30) NOT NULL,
+student_mname varchar(30),
+student_email varchar(30) NOT NULL,
+student_phone varchar(15) NOT NULL,
+student_alternate_phone varchar(15),
+enrollment_date TIMESTAMP NOT NULL,
+selected_course int NOT NULL DEFAULT 1,
+years_of_exp int NOT NULL,
+student_company varchar(30),
+batch_date varchar(30),
+source_of_joining varchar(30) NOT NULL,
+location varchar(30) NOT NULL,
+primary key (student_id),
+unique key (student_email)
+);
+
+insert into students (student_fname,student_lname,student_email,
+student_phone,selected_course,years_of_exp,student_company,batch_date,source_of_joining,location) 
+values('sakib','hasan', 'sakib@gmail.com', '12345',2, 3, 'gp','5-2-2023','Linkedin','magura');
+
+insert into students (student_fname,student_lname,student_email,
+student_phone,selected_course,years_of_exp,student_company,batch_date,source_of_joining,location) 
+values('tamim','iqbal', 'tamim@gmail.com', '54321',3, 6, 'robi','5-2-2023','Linkedin','chittagong');
+
+insert into students (student_fname,student_lname,student_email,
+student_phone,years_of_exp,student_company,batch_date,source_of_joining,location) 
+values('taskin','ahmed', 'taskin@gmail.com', '14523', 4, 'banglalink','5-2-2023','indeed','Dhaka');
+
+insert into students (student_fname,student_lname,student_email,
+student_phone,selected_course,years_of_exp,student_company,batch_date,source_of_joining,location) 
+values('Mehedy','miraz', 'mehedy@gmail.com', '32145',2, 5, 'nagad','5-2-2023','stepstone','khulna'),
+('nazmul','shanto', 'shanto@gmail.com', '12145',1, 3, 'bkash','5-2-2023','Xing','barishal'),
+('mushfiq','rahman', 'mushfiq@gmail.com', '34245', 2,4, 'Taptap','5-2-2023','stepstone','Raozan'),
+('mashrafe','murtuza','mashrafe@gmail.com', '32145',3,5, 'Leader','5-2-2023','Xing', 'norail');
+
+select statement
+================
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,student_company,source_of_joining,location from students;
+
+create table courses(
+course_id int NOT NULL,
+course_name varchar(30) NOT NULL,
+course_duration_months int NOT NULL,
+course_fee int NOT NULL,
+PRIMARY key (course_id)
+);
+
+insert into courses values(1, 'deep learning', '6', 50000);
+
+insert into courses values(2, 'machine learning', '3',  20000);
+insert into courses values(3, 'devops', '5',  40000);
+insert into courses values(4, 'big data', '1',  10000);
+
+drop table students;
+
+create table students (
+student_id int AUTO_INCREMENT,
+student_fname varchar(30) NOT NULL,
+student_lname varchar(30) NOT NULL,
+student_mname varchar(30),
+student_email varchar(30) NOT NULL,
+student_phone varchar(15) NOT NULL,
+student_alternate_phone varchar(15),
+enrollment_date TIMESTAMP NOT NULL,
+selected_course int NOT NULL DEFAULT 1,
+years_of_exp int NOT NULL,
+student_company varchar(30),
+batch_date varchar(30),
+source_of_joining varchar(30) NOT NULL,
+location varchar(30) NOT NULL,
+primary key (student_id),
+unique key (student_email),
+FOREIGN KEY (selected_course) REFERENCES courses(course_id)
+);
+
+parent  = courses
+child = students
+
+insert into students (student_fname,student_lname,student_email,
+student_phone,selected_course,years_of_exp,student_company,batch_date,source_of_joining,location) 
+values('riyad','ahmed', 'riyad@gmail.com', '51221',4, 6, 'teletalk','5-2-2023','Linkedin','chittagong');
+
+delete from courses where course_id = 2;
+
+Can not delete the id= 2 (machine learning) , because this course has been taken by students, 
+it will be Foreign key constraint.
+
+Suppose( id = 4 === > is not taken any students,,, then we can delete  the data. will not violate any constraint )
+
+
+
+constraint
+==========
+NOT NULL
+UNIQUE KEY
+PRIMARY KEY 
+FOREIGN KEY
+CHECK key
+
+Session 6
+=============================================================================
+
+select location from students;
+
+there is duplication  which i donnot want. then use DISTINCT.
+ 
+select DISTINCT location from students;
+select DISTINCT student_company from students;
+
+Ordey by
+=========
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,
+student_company,source_of_joining,location from students ORDER BY years_of_exp;
+
+ assending ORDER
+
+SELECT student_fname from students ORDER BY student_fname;
+SELECT student_fname,years_of_exp from students ORDER BY years_of_exp desc;
+
+desc = Descending order 
+
+SELECT student_fname,years_of_exp from students ORDER BY years_of_exp, student_fname;
+ 
+2-level sorting ==== it will first sort by years then name;
+
+LIMIT
+=======
+select * from students limit 3;
+
+get 3 candidates with least expreiences;
+---------------------------------------
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,
+student_company,source_of_joining,location from students ORDER BY years_of_exp limit 3;
+
+get 3 candidates with highest expreiences;
+
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,
+student_company,source_of_joining,location from students ORDER BY years_of_exp DESC LIMIT 3;
+
+want to know that from which sources last 5 candidates have enrolled?
+
+select source_of_joining,location from students ORDER BY enrollment_date DESC LIMIT 5;
+
+select * from students order by enrollment_date LIMIT 0,3;
+Not popular this one.
+
+select DISTINCT source_of_joining,location from students ORDER BY enrollment_date DESC LIMIT 5;
+this will not work.
+
+LIKE 
+====
+
+any name starts with M.
+-------------------------
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,
+student_company,source_of_joining,location from students where student_fname LIKE '%M%';
+
+% is a wildcard character; % = anything
+_ is wildcard character ( exactly one character)
+\ is a escape character
+
+in here m any where present will show 
+SO, starts with M and then % anything..
+
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course,
+student_company,source_of_joining,location from students where student_fname LIKE 'M%';
+
+all names who have 5 character in their name.
+---------------------------------------------
+
+select student_id,enrollment_date,student_fname,years_of_exp,selected_course, student_compan
+y,source_of_joining,location from students where student_fname LIKE '_____';
+
+

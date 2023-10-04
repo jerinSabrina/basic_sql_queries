@@ -1,0 +1,256 @@
+Session - 7 
+=========================================================================
+
+select DISTINCT source_of_joining,location from students ORDER BY enrollment_date DESC LIMIT 5;
+this will not work.
+
+Lets's talk.
+
+DISTINCT and ORDER BY
+
+**SELECT source_of_joining FROM students;
+Order of execution
+====================
+FROM  (Loading the table)
+select * from students;
+SELECT ( projecting the coloumn = source_of_joining) 
+select source_of_joining from students;
+
+
+**SELECT source_of_joining,enrollment_date FROM students;
+Order of execution
+====================
+FROM  (Loading the table)
+select * from students;
+SELECT ( projecting the coloumn = source_of_joining, enrollment_date)
+select source_of_joining, enrollment_date from students;
+
+**SELECT source_of_joining,enrollment_date FROM students order by enrollment_date;
+Order of execution
+====================
+FROM  (Loading the table)
+select * from students;
+SELECT ( projecting the coloumn = source_of_joining, enrollment_date)
+select source_of_joining, enrollment_date from students;
+ORDER by ( based on enrollment_date it will order by)
+select source_of_joining ,enrollment_date from students order by enrollment_date;
+
+**SELECT source_of_joining FROM students order by enrollment_date;
+Order of execution
+====================
+FROM  (Loading the table)
+select * from students;
+SELECT ( projecting the coloumn = source_of_joining, enrollment_date)
+select source_of_joining, enrollment_date from students; (enrollment_date will be there called by system)
+ORDER by ( based on enrollment_date it will order by)
+select source_of_joining from students order by enrollment_date;
+
+**SELECT DISTINCT source_of_joining FROM students order by enrollment_date;
+Order of execution
+====================
+FROM  (Loading the table)
+select * from students;
+
+SELECT ( projecting the coloumn = source_of_joining, enrollment_date)
+select source_of_joining, enrollment_date from students; (enrollment_date will be there called by system)
+
+DISTINCT
+SELECT DISTINCT source_of_joining from students; (THIS IS what we want)
+select DISTINCT source_of_joining, enrollment_date from students; ( this is system are doing)
+
+ORDER by ( based on enrollment_date it will order by)
+select source_of_joining from students order by enrollment_date;
+
+So logically DISTINCT is not working,,
+
+
+Session -- 8 
+ ================================================================================
+
+Aggregate functions  :  COUNT
+Q1 . How many rows in the students table?
+select count(*) from students;
+
+Q2. from how many different companines people are joining in the course?
+select count(student_company) from students;
+select count( DISTINCT student_company) as num_companies from students;
+
+Q3. From how many locations people are joining?
+select count(location) from students;
+select count( DISTINCT location) as student_location from students;
+
+Q4. students who have enrolled for feburary batch?
+select count(batch_date) from students;
+select count(*) from students where batch_date like '%-02-%';
+select count(*) from students where batch_date like '%-%-2023';
+
+
+GROUP BY 
+==========
+Q1. How many people  have joined my course got to know me through?
+Linkedin = 3
+stepstone =2
+xing = 2
+indeed= 1
+select source_of_joining from students;
+
+select source_of_joining, count(*) from students group by source_of_joining;
+
+Q2. How many people are joining from different location?
+
+select location, count(*) from students group by location ;
+
+select location,source_of_joining count(*) from students group by source_of_joining ;
+this will not work.
+
+GROUPing based on two columns
+==============================
+select location, source_of_joining from students;
+
+Q3. how many people from differnt location got to know through differnt sources?
+select location, source_of_joining,count(*) from students group by location, source_of_joining;
+
+Q4.How many people are enrolled for each course?
+select selected_course,count(*) from students group by selected_course;
+select batch_date, selected_course,count(*) from students group by batch_date,selected_course;
+
+MIN & MAX
+===========
+select MIN(years_of_exp) from students;
+
+select MIN(years_of_exp), student_fname from students;
+will not work..
+select years_of_exp, student_fname from students order by years_of_exp limit 3;
+
+select MAX(years_of_exp) from students;
+
+-- each source of joining want to know maximum experiences;
+
+select source_of_joining , MAX(years_of_exp) from students group by source_of_joining;
+
+SUM 
+======
+select source_of_joining , SUM(years_of_exp) from students group by source_of_joining;
+
+AVG
+===
+select source_of_joining , AVG(years_of_exp) from students group by source_of_joining;
+select location, avg(years_of_exp) from students group by location;
+
+Session --9 
+============================================================================================
+DECIMAL (5,3)
+TIMESTAMP
+How to hold decimal values;
+
+decimal(3,1) 3  means total num , 1  means after decimal point 1 num.
+12.5  = ok
+3.5 ==  ok
+4.52 == not ok
+create table courses_new(
+	course_id int not null primary key,
+	course_name varchar(20),
+	course_duration_months decimal(3,1) not null,
+	course_fee int not null
+);
+
+insert into courses_new values (1, ' AI', 4.5, 5000);
+insert into courses_new values (2, ' DL', 5.5, 4500);
+insert into courses_new values (3, ' LM', 6, 6000);
+
+
+create table courses_new(
+	course_id int not null primary key,
+	course_name varchar(20),
+	course_duration_months decimal(3,1) not null,
+	changed_values TIMESTAMP DEFAULT NOW(),
+	course_fee int not null
+);
+update courses_new set course_fee = 40000 where course_id = 2;
+ Q. now want to know when the update was made?
+
+create table courses_new(
+	course_id int not null primary key,
+	course_name varchar(20),
+	course_duration_months decimal(3,1) not null,
+	changed_values TIMESTAMP DEFAULT NOW() ON UPDATE NOW(),
+	course_fee int not null
+);
+
+insert into courses_new(course_id,course_name,course_duration_months,course_fee) values (1, ' AI', 4.5, 5000);
+insert into courses_new(course_id,course_name,course_duration_months,course_fee) values (2, ' DL', 5.5, 4500);
+insert into courses_new(course_id,course_name,course_duration_months,course_fee) values (3, ' LM', 6, 6000);
+
+update courses_new set course_fee = 3000 where course_id = 2;
+
+
+Session - 10
+
+AND , OR, BETWEEN , IN, NOT, CASE END
+==========================================================================================
+// people who are from chittagong
+select * from students where location = 'chittagong';
+
+//people who are not from chittagong
+select * from students where location != 'chittagong';
+
+// get all courses which has the word 'D'
+select * from courses_new where course_name like '%D%';
+
+//all students from chittagong who joined through Linkedin and have les than 6 years of experiences.
+select * from students where years_of_exp < 4 and source_of_joining = 'Linkedin' and location = 'chittagong';
+
+// get all the students who do not fall between 5-6 years of experiences.
+select * from students where years_of_exp <5 or years_of_exp>6;
+select * from students where years_of_exp between 5 and 6;
+select * from students where years_of_exp not between 5 and 6;
+
+//get list of students who are working for robi, gp or bkash;
+select * from students where student_company= 'robi' or student_company = 'gp' or student_company = 'bkash';
+
+select * from students where student_company in('robi','gp','bkash');
+select * from students where student_company NOT in('robi','gp','bkash');
+
+// if the courses are less then 4 months it is diploma and otherwise masters;
+select course_id,course_name,course_fee,
+CASE
+WHEN course_duration_months < 4 THEN 'diploma'
+ELSE 'masters'
+END as course_type
+from courses;
+
+
+//people who are working for gp, robi, teletalk,banglalink , we want to say,
+ it is teplephone operate otherwise online bank.
+
+select student_id,student_fname,student_company,
+CASE
+WHEN student_company IN ('gp', 'robi','teletalk', 'banglalink') THEN 'teplephone_operator'
+ELSE 'online_bank'
+END as company_type
+from students;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
