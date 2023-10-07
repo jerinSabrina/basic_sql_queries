@@ -34,5 +34,5 @@ LIKE  = 'A%' (starts with) or '%A' (end with) or '%A%' ( any where ) <br>
         _ is wildcard character ( exactly one character) <br>
         \ is a escape character
 
-
+Session 7 : 
 
